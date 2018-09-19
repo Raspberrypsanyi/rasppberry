@@ -122,7 +122,7 @@ class MS5611(object):
         #GPIO.output(self.cs_pin, GPIO.LOW)  
         #self._spixfer(register)    # send request to read from register
         #value = (self._spixfer(0) << 8) | self._spixfer(0) 
-		value = self.bus.read_i2c_block_data(0x77, register,2)
+		value = self.bus.read_i2c_block_data(0x77, register, 2)
         #GPIO.output(self.cs_pin, GPIO.HIGH)
         return value
 
@@ -131,7 +131,7 @@ class MS5611(object):
         #GPIO.output(self.cs_pin, GPIO.LOW)
         #self._spixfer(register)    # send request to read from register
         #value = (self._spixfer(0) << 16) | (self._spixfer(0) << 8) | self._spixfer(0)  
-		value = self.bus.read_i2c_block_data(0x77, register,3)
+		value = self.bus.read_i2c_block_data(0x77, register, 3)
         #GPIO.output(self.cs_pin, GPIO.HIGH)
         return value
     
@@ -169,7 +169,7 @@ class MS5611(object):
         #byteL = self._spixfer(0)    # send request to read from register
         #value = (byteH << 16) | (byteM << 8) | byteL 
         #GPIO.output(self.cs_pin, GPIO.HIGH)
-		value = self.bus.read_i2c_block_data(0x77, self.__MS5611_ADC_READ,3)
+		value = self.bus.read_i2c_block_data(0x77, self.__MS5611_ADC_READ, 3)
         return value  
       
     def _refreshPressure(self, OSR = __MS5611_CONVERT_D1_4096):
