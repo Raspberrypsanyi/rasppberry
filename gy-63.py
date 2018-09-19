@@ -122,7 +122,7 @@ class MS5611(object):
         #GPIO.output(self.cs_pin, GPIO.LOW)  
         #self._spixfer(register)    # send request to read from register
         #value = (self._spixfer(0) << 8) | self._spixfer(0)
-		value = self.bus.read_i2c_block_data(0x77, register, 2)
+		value = bus.read_i2c_block_data(0x77, register, 2)
         #GPIO.output(self.cs_pin, GPIO.HIGH)
         return value
 
