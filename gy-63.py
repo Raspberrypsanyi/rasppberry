@@ -20,6 +20,8 @@ __status__ = 'Production'
 import RPi.GPIO as GPIO
 import time
 import numpy
+import smbus
+bus = smbus.SMBus(0)
 
 
 class MS5611(object):
@@ -84,13 +86,13 @@ class MS5611(object):
                 
         # Initialize needed GPIO
         GPIO.setmode(self.board)
-        GPIO.setup(self.cs_pin, GPIO.OUT)
-        GPIO.setup(self.clock_pin, GPIO.OUT)
-        GPIO.setup(self.data_in_pin, GPIO.IN)
-        GPIO.setup(self.data_out_pin, GPIO.OUT)
+        GPIO.setup(7, GPIO.OUT)
+        #GPIO.setup(self.clock_pin, GPIO.OUT)
+        #GPIO.setup(self.data_in_pin, GPIO.IN)
+        #GPIO.setup(self.data_out_pin, GPIO.OUT)
 
         # Pull chip select high to make chip inactive
-        GPIO.output(self.cs_pin, GPIO.HIGH)
+        GPIO.output(7, GPIO.HIGH)
                       
         # Reset sensor
         self._send_command(self.__MS5611_RESET)
@@ -117,25 +119,28 @@ class MS5611(object):
        
     def _read16(self, register):
         '''Reads 16-bits from specified register'''
-        GPIO.output(self.cs_pin, GPIO.LOW)  
-        self._spixfer(register)    # send request to read from register
-        value = (self._spixfer(0) << 8) | self._spixfer(0) 
-        GPIO.output(self.cs_pin, GPIO.HIGH)
+        #GPIO.output(self.cs_pin, GPIO.LOW)  
+        #self._spixfer(register)    # send request to read from register
+        #value = (self._spixfer(0) << 8) | self._spixfer(0) 
+		value = self.bus.read_i2c_block_data(0x77, register,2)
+        #GPIO.output(self.cs_pin, GPIO.HIGH)
         return value
 
     def _read24(self, register):
         '''Reads 24-bits from specified register'''
-        GPIO.output(self.cs_pin, GPIO.LOW)
-        self._spixfer(register)    # send request to read from register
-        value = (self._spixfer(0) << 16) | (self._spixfer(0) << 8) | self._spixfer(0)  
-        GPIO.output(self.cs_pin, GPIO.HIGH)
+        #GPIO.output(self.cs_pin, GPIO.LOW)
+        #self._spixfer(register)    # send request to read from register
+        #value = (self._spixfer(0) << 16) | (self._spixfer(0) << 8) | self._spixfer(0)  
+		value = self.bus.read_i2c_block_data(0x77, register,3)
+        #GPIO.output(self.cs_pin, GPIO.HIGH)
         return value
     
     def _send_command(self, command):
         '''Sends command via SPI'''
-        GPIO.output(self.cs_pin, GPIO.LOW)
-        self._spixfer(command) 
-        GPIO.output(self.cs_pin, GPIO.HIGH)     
+        #GPIO.output(self.cs_pin, GPIO.LOW)
+        #self._spixfer(command) 
+		self.bus.write_byte_data(0x77, command)
+        #GPIO.output(self.cs_pin, GPIO.HIGH)     
 
     def _read_coefficients(self):
         '''Reads the factory-set coefficients'''
@@ -156,14 +161,15 @@ class MS5611(object):
         '''
             
     def _read_adc(self):
-        GPIO.output(self.cs_pin, GPIO.LOW)
-        dump = self._spixfer(self.__MS5611_ADC_READ)    # send request to read from register
+        #GPIO.output(self.cs_pin, GPIO.LOW)
+        #dump = self._spixfer(self.__MS5611_ADC_READ)    # send request to read from register
         #time.sleep(0.1)
-        byteH = self._spixfer(0)    # send request to read from register
-        byteM = self._spixfer(0)    # send request to read from register
-        byteL = self._spixfer(0)    # send request to read from register
-        value = (byteH << 16) | (byteM << 8) | byteL 
-        GPIO.output(self.cs_pin, GPIO.HIGH)
+        #byteH = self._spixfer(0)    # send request to read from register
+        #byteM = self._spixfer(0)    # send request to read from register
+        #byteL = self._spixfer(0)    # send request to read from register
+        #value = (byteH << 16) | (byteM << 8) | byteL 
+        #GPIO.output(self.cs_pin, GPIO.HIGH)
+		value = self.bus.read_i2c_block_data(0x77, self.__MS5611_ADC_READ,3)
         return value  
       
     def _refreshPressure(self, OSR = __MS5611_CONVERT_D1_4096):
